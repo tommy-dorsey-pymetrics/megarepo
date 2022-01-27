@@ -5,7 +5,7 @@
 #  1. Add the name to the `jobs.add-reviewers.strategy.matrix.environment` array
 #  2. Create a new configuration in (.github/auto-assign/<environment>)
 
-name: "Auto Assign Reviewers"
+name: Assign Reviewers
 on:
   workflow_run:
     workflows: [Labeler]
