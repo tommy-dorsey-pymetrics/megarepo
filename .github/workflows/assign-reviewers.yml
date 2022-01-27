@@ -8,7 +8,7 @@
 name: Assign Reviewers
 on:
   workflow_run:
-    workflows: [Labeler]
+    workflows: [Add Labels]
     types:
       - completed
 
@@ -17,12 +17,12 @@ on:
     types: [labeled]
 
 jobs:
-  get-environments:
+  set-environment-matrix:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.set-environments-matrix.outputs.environments }}
+      matrix: ${{ steps.set-environments.outputs.environments }}
     steps:
-      - id: set-environments-matrix
+      - id: set-environments
         #Eventually, we should pull the environment json list from the cicd endpoint
         run: echo "::set-output name=environments::{\"environments\":[sandbox, staging, \"staging-ie\", production, \"production-ie\""]}"
 
