@@ -5,25 +5,41 @@
 #  1. Add the name to the `jobs.add-reviewers.strategy.matrix.environment` array
 #  2. Create a new configuration in (.github/auto-assign/<environment>)
 
-name: "Auto Assign"
+name: "Auto Assign Reviewers"
 on:
+  workflow_run:
+    workflows: [Labeler]
+    types:
+      - completed
+
   pull_request:
-    #The release script creates a PR with a label 'type: deployment', which triggers this workflow
+    #The Labeler Workflow adds with a label 'type: deployment', which triggers this workflow
     types: [labeled]
 
 jobs:
-  add-reviewers:
-    if: "${{ github.event.label.name == 'type: deployment' }}"
-    strategy:
-      matrix:
-        environment:
-          ["sandbox", "staging", "staging-ie", "production", "production-ie"]
-      fail-fast: false
+  get-environments:
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-environments-matrix.outputs.environments }}
     steps:
+      - id: set-environments-matrix
+        #Eventually, we should pull the environment json list from the cicd endpoint
+        run: echo "::set-output name=environments::{\"environments\":[sandbox, staging, \"staging-ie\", production, \"production-ie\""]}"
+
+  add-reviewers:
+    needs: set-environment-matrix
+    runs-on: ubuntu-latest
+    if: "contains(github.event.pull_request.labels.*.name, 'type: deployment')"
+    strategy:
+      matrix: ${{fromJSON(needs.get-environments.outputs.matrix)}}
+      fail-fast: false
+    steps:
+      - name: Debug
+        if: ${{ env.ACTIONS_STEP_DEBUG == true }}
+        run: "core.debug(`Pull Request Event: ${github.event.pull_request}`);"
+
       - name: Add reviewers for ${{ matrix.environment }} deployments
         if: "${{ github.event.label.name == 'environment: ${{ matrix.environment }}' }}"
-        id: ${{ matrix.environment }}-prs
         uses: kentaro-m/auto-assign-action@v1.2.1
         with:
           configuration-path: ".github/auto-assign/${{ matrix.environment }}.yml"
