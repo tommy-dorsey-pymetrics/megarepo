@@ -8,7 +8,7 @@
 name: Assign Reviewers
 on:
   workflow_run:
-    workflows: [Labeler]
+    workflows: [Add Labels]
     types:
       - completed
 
