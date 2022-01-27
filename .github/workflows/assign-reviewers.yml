@@ -27,7 +27,7 @@ jobs:
         run: echo "::set-output name=environments::{\"environments\":[sandbox, staging, \"staging-ie\", production, \"production-ie\""]}"
 
   add-reviewers:
-    needs: set-environment-matrix
+    needs: get-environments
     runs-on: ubuntu-latest
     if: "contains(github.event.pull_request.labels.*.name, 'type: deployment')"
     strategy:
