@@ -24,7 +24,7 @@ jobs:
     steps:
       - id: set-environments-matrix
         #Eventually, we should pull the environment json list from the cicd endpoint
-        run: echo "::set-output name=environments::{\"environments\":[sandbox, staging, \"staging-ie\", production, \"production-ie\""]}"
+        run: echo "::set-output name=environments::{\"environments\":[sandbox, staging, \"staging-ie\", production, \"production-ie\"]}"
 
   add-reviewers:
     needs: get-environments
