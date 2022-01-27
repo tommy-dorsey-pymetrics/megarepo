@@ -5,6 +5,7 @@ Prerequisites
 - Node v 12-14
 - NVM (nvm install --lts) https://github.com/nvm-sh/nvm#nvmrc
 - Yarn or NPM or Pnpm
+- test commit
 
 ## Setup - Step 1
 
