@@ -1,0 +1,13 @@
+# https://github.com/actions/labeler
+
+"type: deployment":
+  - label-demo/**
+
+"environment: production":
+  - label-demo/production/**
+
+"environment: staging":
+  - label-demo/staging/**
+
+"environment: sandbox":
+  - label-demo/sandbox/**
