@@ -1,0 +1,39 @@
+#If a PR is labeled as 'type: deployment', automatically add reviewers as appropriate for each environment.
+# Assignments can be configured on a per environment basis with the configuration stored in (.github/auto-assign)
+
+#To add a new environment:
+#  1. Add the name to the `jobs.add-reviewers.strategy.matrix.environment` array
+#  2. Create a new configuration in (.github/auto-assign/<environment>)
+
+name: "Auto Assign"
+on:
+  pull_request:
+    #The release script creates a PR with a label 'type: deployment', which triggers this workflow
+    types: [labeled]
+
+jobs:
+  add-reviewers:
+    if: "${{ github.event.label.name == 'type: deployment' }}"
+    strategy:
+      matrix:
+        environment:
+          ["sandbox", "staging", "staging-ie", "production", "production-ie"]
+      fail-fast: false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add reviewers for ${{ matrix.environment }} deployments
+        if: "${{ github.event.label.name == 'environment: ${{ matrix.environment }}' }}"
+        id: ${{ matrix.environment }}-prs
+        uses: kentaro-m/auto-assign-action@v1.2.1
+        with:
+          configuration-path: ".github/auto-assign/${{ matrix.environment }}.yml"
+      - name: Mark the PR as ready
+        if: success() && github.event.pull_request.draft == true
+        run: gh pr ready
+
+      - name: Add default reviewers if no environment label is found
+        if: "!contains(github.event.pull_request.labels.*.name, 'environment')"
+        id: add-default-reviewers
+        uses: kentaro-m/auto-assign-action@v1.2.1
+        with:
+          configuration-path: ".github/auto-assign/default.yml"
