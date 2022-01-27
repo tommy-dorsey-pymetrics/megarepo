@@ -5,15 +5,15 @@
 #  1. Add the name to the `jobs.add-reviewers.strategy.matrix.environment` array
 #  2. Create a new configuration in (.github/auto-assign/<environment>)
 
-name: "Auto Assign"
+name: "Auto Assign Reviewers"
 on:
   pull_request:
-    #The release script creates a PR with a label 'type: deployment', which triggers this workflow
+    #The Labeler Workflow adds with a label 'type: deployment', which triggers this workflow
     types: [labeled]
 
 jobs:
   add-reviewers:
-    if: "${{ github.event.label.name == 'type: deployment' }}"
+    if: "contains(github.event.pull_request.labels.*.name, 'type: deployment')"
     strategy:
       matrix:
         environment:
@@ -21,6 +21,10 @@ jobs:
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
+      - name: Debug
+        if: ${{ env.ACTIONS_STEP_DEBUG == true }}
+        run: "core.debug(`Pull Request Event: ${github.event.pull_request}`);"
+
       - name: Add reviewers for ${{ matrix.environment }} deployments
         if: "${{ github.event.label.name == 'environment: ${{ matrix.environment }}' }}"
         id: ${{ matrix.environment }}-prs
